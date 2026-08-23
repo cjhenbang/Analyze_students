@@ -1,7 +1,17 @@
+too less info in a line test
+0004
+
+non-digit student id test
 0001a,test1,24,101,102,105,25,110
+
+digit in name test
 0002,test2,-1,-1.1,-1,-1,-1,-1
 0003,test3,101,102,103,104,105,106
+
+
 0003,7columns,-3,-4,-5,-6,-7
-0004
 0200,bigmid,1,1,1,101,1,1
 0201,smallmid,1,1,1,-1,1,1
+
+reretitive student id test
+1012,Lauraa,8.0,90,86,85,8.0,88

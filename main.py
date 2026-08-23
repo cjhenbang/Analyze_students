@@ -1,4 +1,5 @@
 # 这是一个示例 Python 脚本。
+import sys
 
 # 按 Shift+F10 执行或将其替换为您的代码。
 # 按 双击 Shift 在所有地方搜索类、文件、工具窗口、操作和设置。
@@ -20,9 +21,13 @@ if __name__ == '__main__':
 This dictionary 
 """
 
-def check_line(info_list: list) -> bool:
+def check_line(info_list: list, students) -> bool:
 
     errors = []
+
+
+
+
 
     check_columns(info_list, errors)
 
@@ -31,8 +36,7 @@ def check_line(info_list: list) -> bool:
         failed_list.append(info_list)
         return False
 
-
-    check_id(info_list, errors)
+    check_id(info_list, errors, students)
     check_name(info_list, errors)
     check_study_hours(info_list, errors)
     check_attendance_score(info_list, errors)
@@ -41,7 +45,6 @@ def check_line(info_list: list) -> bool:
     check_sleep_hours(info_list,errors)
     check_final_scores(info_list,errors)
 
-
     if errors:
         info_list.append(errors)
         failed_list.append(info_list)
@@ -49,8 +52,41 @@ def check_line(info_list: list) -> bool:
     else:
         return True
 
+def check_file(file_name: str) -> bool:
+    """
 
-def check_columns(info_list: list[str], errors: list[str]) -> None:
+    :param file_name:
+    :return:False if any validations fails.
+            True if all validations pass.
+
+    Validations:
+        1:A file with the specific name should exist.
+        2.The file cannot be empty.csv
+    """
+
+
+    try:
+        file = open(file_name, "r")
+        file.close()
+    except FileNotFoundError:
+        print(f"There is not a file called '{file_name}', please check the file name you typed in.")
+        return False
+    except Exception as e:
+        print("Something goes wrong, we will pull out the error information for you.")
+        print(f"\t{e}")
+        return False
+    #try to do it!
+
+    with open(file_name, "r") as file:
+        content = file.read().strip()
+        if not content:
+            print(f"This file is empty.")
+            return  False
+
+    return True
+
+
+def check_columns(info_list: list, errors: list[str]) -> None:
     length = len(info_list)
     if length < 8:
         errors.append(f"There are too less information in this line. We expect get 8 information, but only find {length}.")
@@ -58,23 +94,37 @@ def check_columns(info_list: list[str], errors: list[str]) -> None:
         errors.append(f"There are too many information in this line. We expect get 8 information, but find {length}")
     return
 
-def check_id(info_list: list, errors: list[str]) -> None:
+def check_id(info_list: list, errors: list[str], students: list[dict]) -> None:
     student_id = info_list[0]
     if not student_id:
-        errors.append(f"This student id is: {student_id},this id number is empty.")
+        errors.append(f"This student id is: {student_id},this id number is empty.csv.")
         return
 
-    if student_id.isdigit():
-        if len(student_id) == 4 and int(student_id)>0:
-            return
+    #This line checks if the stutend id is consist of exact 4 numbers.
+    #If the student id is made up of exact 4 numbers and positive, it will be fine.
+    #Otherwise, a error messasge will be added to the list.
+    if not student_id.isdigit() or len(student_id) != 4:
+        errors.append(f"This student id is: {student_id}, the id numbers should be 4 digits, and bigger than 0.")
+        return
 
-    errors.append(f"This student id is: {student_id}, the id numbers should be 4 digits.")
+    """
+    This module is to check if current student who is going to be added into the student list has a replicate student_id
+    with any previous student. If it does, current student will not be added into the list, and a error message will be
+    added into the error message list.
+    """
+    for student in students:
+        if student_id == student["student_id"]:
+            errors.append(f"The student student_id {student_id} for has appeared, "
+                          f"I will put our students of the same id for you."
+                          f"\n\t\texist one: {student}"
+                          f"\n\t\tCurrent one: {info_list}")
+
 
 def check_name(info_list: list[str], errors: list[str])-> None:
     name = info_list[1]
 
     if not name.strip():
-        errors.append(f"Your name is: {name},the name is empty.")
+        errors.append(f"Your name is: {name},the name is empty.csv.")
 
     if any(char.isdigit() for char in name):
         errors.append(f"Your name is: {name},there is some numbers in name.")
@@ -91,7 +141,7 @@ def check_study_hours(info_list: list[str], errors: list[str]) ->None :
     :param errors:
     :return: None
 
-    This function is can check the integrity of hours data. It will be used to check
+    This function is can check the integrity of hours data. It will be used to checkc
     study hours and sleep hours of student information
     """
     study_hours_str = info_list[2]
@@ -111,7 +161,7 @@ def check_number(number_str: str, number_type: str, max: int, min: int, is_int: 
         if (number % 1) == 0:
             number = int(number)
         else:
-            errors.append(f"The {number_type} is: {number}, we can't convert it to a interger.")
+            errors.append(f"The {number_type} is: {number}, we can't convert it to a integer.")
 
     if number < min:
         errors.append(f"The {number_type} is: {number}, it should not be smaller than {min}.")
@@ -129,12 +179,12 @@ def check_attendance_score(info_list: list[str], errors: list[str]) ->None:
 #errors.append(f"The  is: {}, it should be a positive number.")
 def check_homework_score(info_list: list[str], errors: list[str]) ->None:
     homework_score_str = info_list[4]
-    check_number(homework_score_str, "homework_score", 100, 0, True, errors)
+    check_number(homework_score_str, "homework_score", 100, 0, False, errors)
     return
 
 def check_midterm_score(info_list: list[str], errors: list[str]) ->None:
     midterm_score_str = info_list[5]
-    check_number(midterm_score_str, "midterm_score", 100, 0, True, errors)
+    check_number(midterm_score_str, "midterm_score", 100, 0, False, errors)
     return
 
 def check_sleep_hours(info_list: list[str], errors: list[str]) ->None:
@@ -170,6 +220,13 @@ def count_infos(line: list) -> int:
         if type(info) == str:
             num += 1
     return num
+
+def print_all_students(students: list) -> None:
+
+    for student in students:
+        print(student)
+
+    return
 
 
 def print_errors_info(failed_list: list[list[str]]) -> None:
@@ -221,19 +278,30 @@ def create_dict(info_list: list) -> dict:
         "final_score": None
     }
 
-    student_dict["student_id"] = int(info_list[0])
+    student_dict["student_id"] = info_list[0]
     student_dict["name"] = info_list[1]
     student_dict["study_hours"] = float(info_list[2])
-    student_dict["attendance"] = int(info_list[3])
-    student_dict["homework_score"] = info_list[4]
-    student_dict["midterm_score"] = info_list[5]
-    student_dict["sleep_hours"] = info_list[6]
-    student_dict["final_score"] = info_list[7]
+    student_dict["attendance"] = float(info_list[3])
+    student_dict["homework_score"] = float(info_list[4])
+    student_dict["midterm_score"] = float(info_list[5])
+    student_dict["sleep_hours"] = float(info_list[6])
+    student_dict["final_score"] = float(info_list[7])
 
     return student_dict
 
 
-with open("students.csv", "r") as file:
+def calculate_statistics():
+    pass
+
+#Main program
+
+file_name = "students.csv"
+
+if not check_file(file_name):
+    sys.exit()
+
+
+with open(file_name, "r") as file:
     """
     data = file.read()
     print(data)
@@ -254,12 +322,11 @@ with open("students.csv", "r") as file:
     for line in file:
 
         #my_dict = create_dict(line.strip().split(","))
-        info_list = []
         info_list = line.strip().split(",")
         #Check if the current line has the right information to make a dictionary
         #if it does, make it. If it is not, record the content and add it to the
         #list and count it.
-        if check_line(info_list):
+        if check_line(info_list, students):
             current_dict = create_dict(info_list)
             students.append(current_dict)
         else:
@@ -272,8 +339,9 @@ with open("students.csv", "r") as file:
         #print(f"Infos are: {info_list}\n")
     #print(f"first student is {student_dict}")
 
-    for student in students:
-        print(student)
+    #check_print for results
+
+    print_all_students(students)
 
 
     #to print the errors
