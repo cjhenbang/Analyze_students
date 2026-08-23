@@ -21,19 +21,26 @@ if __name__ == '__main__':
 This dictionary 
 """
 
+def record_error(info_list: list[str], errors: list[str], error_records: list[dict]) -> None:
+
+    record = {"info": None, "errors": None}
+
+    record["info"] = info_list
+
+    record["errors"] = errors
+
+    error_records.append(record)
+
+    return
+
 def check_line(info_list: list, students) -> bool:
 
     errors = []
 
-
-
-
-
     check_columns(info_list, errors)
 
     if errors:
-        info_list.append(errors)
-        failed_list.append(info_list)
+        record_error(info_list, errors, error_records)
         return False
 
     check_id(info_list, errors, students)
@@ -46,8 +53,7 @@ def check_line(info_list: list, students) -> bool:
     check_final_scores(info_list,errors)
 
     if errors:
-        info_list.append(errors)
-        failed_list.append(info_list)
+        record_error(info_list, errors, error_records)
         return False
     else:
         return True
@@ -91,7 +97,7 @@ def check_columns(info_list: list, errors: list[str]) -> None:
     if length < 8:
         errors.append(f"There are too less information in this line. We expect get 8 information, but only find {length}.")
     elif length > 8:
-        errors.append(f"There are too many information in this line. We expect get 8 information, but find {length}")
+        errors.append(f"There are too many information in this line. We expect get 8 information, but find {length}.")
     return
 
 def check_id(info_list: list, errors: list[str], students: list[dict]) -> None:
@@ -206,32 +212,7 @@ def check_final_scores(info_list: list[str], errors: list[str]) -> None:
     return 2
     """
 
-def print_failed_line(failed_line: list[str]) -> None:
-    pass
-
-def count_infos(line: list) -> int:
-    """
-    it will count how many of information a line has.
-    :param line:
-    :return:
-    """
-    num = 0
-    for info in line:
-        if type(info) == str:
-            num += 1
-    return num
-
-def print_all_students(students: list) -> None:
-
-    for student in students:
-        print(student)
-
-    return
-
-
-def print_errors_info(failed_list: list[list[str]]) -> None:
-
-    nums_of_failed_line = len(failed_list)
+def convert_info_to_string(info_list: list[str]) -> str:
     line_infos = ["student_id",
                   "name",
                   "study_hours",
@@ -242,24 +223,51 @@ def print_errors_info(failed_list: list[list[str]]) -> None:
                   "final_score"
                   ]
 
-    print(f"\n{nums_of_failed_line} line were not added successfully\n")
+    length = len(info_list)
 
-    for list_index, failed_line in enumerate(failed_list):
+    result = ""
 
-        nums_of_infos = count_infos(failed_line)
+    for i in range(length):
+        result += f" <{line_infos[i]}>: {info_list[i]},"
 
-        errors = failed_line[-1]
+    #delete the first space and the final ','
+    result = result[1:-1]
 
-        print(f"Failed line {list_index+1} ->", end=' ')
-        #print(failed_line)
-        for i in range(nums_of_infos):
-            print(f"{line_infos[i]}: {failed_line[i]}, ", end = '')
+    return result
+
+def print_all_students(students: list) -> None:
+
+    for student in students:
+        print(student)
+
+    return
 
 
-        print()
-        for e_index, error in enumerate(errors):
-            print(f"\t Error{e_index+1}: {error}")
-        print()
+def print_errors_info(error_records: list[list[str]]) -> None:
+
+    nums_of_records = len(error_records)
+    line_infos = ["student_id",
+                  "name",
+                  "study_hours",
+                  "attendance",
+                  "homework_score",
+                  "mideterm_score",
+                  "sleep_hours",
+                  "final_score"
+                  ]
+
+    print()
+
+    print("---Error informations:")
+    print(f"{nums_of_records} line were not added successfully\n")
+
+    for list_index, record in enumerate(error_records):
+        error_number = list_index + 1
+        print(f"{error_number}:{convert_info_to_string(record['info'])}")
+
+        for e_index, error in enumerate(record["errors"]):
+            e_number = e_index + 1
+            print(f"\tError{e_number}:{error}")
 
 
     print()
@@ -295,7 +303,7 @@ def calculate_statistics():
 
 #Main program
 
-file_name = "students.csv"
+file_name = "tests_student_examples"
 
 if not check_file(file_name):
     sys.exit()
@@ -312,7 +320,7 @@ with open(file_name, "r") as file:
     # This is the number that how many lines are failed to be added
     failed_to_add = 0
     # this will show the lines that were not added successfuly
-    failed_list = []
+    error_records = []
 
     #data = file.readline()
     #data = file.readline().strip().split(",")
@@ -349,26 +357,8 @@ with open(file_name, "r") as file:
     #new version
 
 
-    print_errors_info(failed_list)
+    print_errors_info(error_records)
 
-    #old version
-"""
-    for index, info_list in enumerate(failed_list):
-        print(f"{index}", end = "")
-        info_length = len(info_list)
-        if info_length <= 8:
-            for i in range(info_length - 1):
-                print(info_list[i], end="")
-                print("\n")
-        else:
-            error_length = len(info_list)-8
-            for i in range(8):
-                print(info_list[i], end="")
-            for i in range(error_length):
-                print(info_list[7+error_length])
-
-        print("\n")        
-"""
 
 """
     for line in file:
