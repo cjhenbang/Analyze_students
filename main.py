@@ -15,14 +15,14 @@ if __name__ == '__main__':
     print_hi('PyCharm')
 
 """
-#student_id,name,study_hours,attendance,homework_score,midterm_score,sleep_hours,final_score
+# student_id,name,study_hours,attendance,homework_score,midterm_score,sleep_hours,final_score
 
 """
 This dictionary 
 """
 
-def record_error(info_list: list[str], errors: list[str], error_records: list[dict]) -> None:
 
+def record_error(info_list: list[str], errors: list[str], error_records: list[dict]) -> None:
     record = {"info": None, "errors": None}
 
     record["info"] = info_list
@@ -33,8 +33,8 @@ def record_error(info_list: list[str], errors: list[str], error_records: list[di
 
     return
 
-def check_line(info_list: list, students) -> bool:
 
+def check_line(info_list: list, students: list[dict], error_records: list[dict]) -> bool:
     errors = []
 
     check_columns(info_list, errors)
@@ -49,14 +49,15 @@ def check_line(info_list: list, students) -> bool:
     check_attendance_score(info_list, errors)
     check_homework_score(info_list, errors)
     check_midterm_score(info_list, errors)
-    check_sleep_hours(info_list,errors)
-    check_final_scores(info_list,errors)
+    check_sleep_hours(info_list, errors)
+    check_final_scores(info_list, errors)
 
     if errors:
         record_error(info_list, errors, error_records)
         return False
     else:
         return True
+
 
 def check_file(file_name: str) -> bool:
     """
@@ -70,7 +71,6 @@ def check_file(file_name: str) -> bool:
         2.The file cannot be empty.csv
     """
 
-
     try:
         file = open(file_name, "r")
         file.close()
@@ -81,13 +81,13 @@ def check_file(file_name: str) -> bool:
         print("Something goes wrong, we will pull out the error information for you.")
         print(f"\t{e}")
         return False
-    #try to do it!
+    # try to do it!
 
     with open(file_name, "r") as file:
         content = file.read().strip()
         if not content:
             print(f"This file is empty.")
-            return  False
+            return False
 
     return True
 
@@ -95,10 +95,12 @@ def check_file(file_name: str) -> bool:
 def check_columns(info_list: list, errors: list[str]) -> None:
     length = len(info_list)
     if length < 8:
-        errors.append(f"There are too less information in this line. We expect get 8 information, but only find {length}.")
+        errors.append(
+            f"There are too less information in this line. We expect get 8 information, but only find {length}.")
     elif length > 8:
         errors.append(f"There are too many information in this line. We expect get 8 information, but find {length}.")
     return
+
 
 def check_id(info_list: list, errors: list[str], students: list[dict]) -> None:
     student_id = info_list[0]
@@ -106,9 +108,9 @@ def check_id(info_list: list, errors: list[str], students: list[dict]) -> None:
         errors.append(f"This student id is: {student_id},this id number is empty.csv.")
         return
 
-    #This line checks if the stutend id is consist of exact 4 numbers.
-    #If the student id is made up of exact 4 numbers and positive, it will be fine.
-    #Otherwise, a error messasge will be added to the list.
+    # This line checks if the stutend id is consist of exact 4 numbers.
+    # If the student id is made up of exact 4 numbers and positive, it will be fine.
+    # Otherwise, a error messasge will be added to the list.
     if not student_id.isdigit() or len(student_id) != 4:
         errors.append(f"This student id is: {student_id}, the id numbers should be 4 digits, and bigger than 0.")
         return
@@ -126,7 +128,7 @@ def check_id(info_list: list, errors: list[str], students: list[dict]) -> None:
                           f"\n\t\tCurrent one: {info_list}")
 
 
-def check_name(info_list: list[str], errors: list[str])-> None:
+def check_name(info_list: list[str], errors: list[str]) -> None:
     name = info_list[1]
 
     if not name.strip():
@@ -141,7 +143,7 @@ def check_name(info_list: list[str], errors: list[str])-> None:
     return
 
 
-def check_study_hours(info_list: list[str], errors: list[str]) ->None :
+def check_study_hours(info_list: list[str], errors: list[str]) -> None:
     """
     :param info_list:
     :param errors:
@@ -156,10 +158,10 @@ def check_study_hours(info_list: list[str], errors: list[str]) ->None :
     return
 
 
-def check_number(number_str: str, number_type: str, max: int, min: int, is_int: bool, errors:list[str]) -> None:
+def check_number(number_str: str, number_type: str, max: int, min: int, is_int: bool, errors: list[str]) -> None:
     try:
         number = float(number_str.strip())
-    except:
+    except ValueError:
         errors.append(f"The {number_type} is: {number_str}, it should be a number.")
         return
 
@@ -174,43 +176,39 @@ def check_number(number_str: str, number_type: str, max: int, min: int, is_int: 
     elif number > max:
         errors.append(f"The {number_type} is: {number}, it should not be greater than {max}.")
 
-#modifing
-def check_attendance_score(info_list: list[str], errors: list[str]) ->None:
+
+# modifing
+def check_attendance_score(info_list: list[str], errors: list[str]) -> None:
     attendance_score_str = info_list[3]
-    check_number(attendance_score_str, "attendance_score", 100, 0, True, errors)
+    check_number(attendance_score_str, "attendance_score", 100, 0, False, errors)
 
     return
 
 
-#errors.append(f"The  is: {}, it should be a positive number.")
-def check_homework_score(info_list: list[str], errors: list[str]) ->None:
+# errors.append(f"The  is: {}, it should be a positive number.")
+def check_homework_score(info_list: list[str], errors: list[str]) -> None:
     homework_score_str = info_list[4]
     check_number(homework_score_str, "homework_score", 100, 0, False, errors)
     return
 
-def check_midterm_score(info_list: list[str], errors: list[str]) ->None:
+
+def check_midterm_score(info_list: list[str], errors: list[str]) -> None:
     midterm_score_str = info_list[5]
     check_number(midterm_score_str, "midterm_score", 100, 0, False, errors)
     return
 
-def check_sleep_hours(info_list: list[str], errors: list[str]) ->None:
+
+def check_sleep_hours(info_list: list[str], errors: list[str]) -> None:
     sleep_hours_str = info_list[6]
     check_number(sleep_hours_str, "sleep_horus", 24, 0, False, errors)
     return
+
 
 def check_final_scores(info_list: list[str], errors: list[str]) -> None:
     final_score_str = info_list[7]
     check_number(final_score_str, "final_score", 100, 0, False, errors)
     return
 
-    """
-    if id.isdigit() and len(id) == 4:
-        digital_id = int(id)
-        if type(digital_id) == int and digital_id > 0:
-            return 0
-
-    return 2
-    """
 
 def convert_info_to_string(info_list: list[str]) -> str:
     line_infos = ["student_id",
@@ -228,38 +226,32 @@ def convert_info_to_string(info_list: list[str]) -> str:
     result = ""
 
     for i in range(length):
-        result += f" <{line_infos[i]}>: {info_list[i]},"
+        if i <= 7:
+            result += f" <{line_infos[i]}>: {info_list[i]},"
+        else:
+            result += f"<unexpected_field>: {info_list[i]},"
 
-    #delete the first space and the final ','
+    # delete the first space and the final ','
     result = result[1:-1]
 
     return result
 
-def print_all_students(students: list) -> None:
 
+def print_all_students(students: list) -> None:
     for student in students:
         print(student)
 
     return
 
 
-def print_errors_info(error_records: list[list[str]]) -> None:
-
+def print_import_summary(students: list[dict], error_records: list[dict]) -> None:
     nums_of_records = len(error_records)
-    line_infos = ["student_id",
-                  "name",
-                  "study_hours",
-                  "attendance",
-                  "homework_score",
-                  "mideterm_score",
-                  "sleep_hours",
-                  "final_score"
-                  ]
 
     print()
 
-    print("---Error informations:")
-    print(f"{nums_of_records} line were not added successfully\n")
+    print("---Summary:")
+    print(
+        f"There were {total_lines} lines.\n{num_of_validate_lines} lines were successfully added.{nums_of_records} line were not added successfully\n")
 
     for list_index, record in enumerate(error_records):
         error_number = list_index + 1
@@ -268,13 +260,10 @@ def print_errors_info(error_records: list[list[str]]) -> None:
         for e_index, error in enumerate(record["errors"]):
             e_number = e_index + 1
             print(f"\tError{e_number}:{error}")
-
-
-    print()
+        print()
 
 
 def create_dict(info_list: list) -> dict:
-
     student_dict = {
         "student_id": None,
         "name": None,
@@ -298,16 +287,50 @@ def create_dict(info_list: list) -> dict:
     return student_dict
 
 
+# statistic part
+
+def calculate_valid_students(students: list[dict]) -> int:
+    # This function calculates how many of valid information of students are imported to the list of dictionary
+    return len(students)
+
+
+def calculate_failed_lines(failed_lines: list[str]) -> int:
+    # This function calculates how many lines of information are failed importing to the list of dictionary
+    return len(failed_lines)
+
+
+def calculate_total_lines(students: list[dict], failed_lines: list[str]) -> int:
+    return len(students) + len(failed_lines)
+
+def calculate_average_of_final_scores(students: list[dict]) -> float:
+
+    if not students:
+        print("We didn't find any valid student record.")
+        return -1
+
+    num_students = len(students)
+    total_score = 0
+
+    for student in students:
+        total_score += student["final_score"]
+
+    average =  total_score / num_students
+    return average
+
+def sort_dictionaries(students: list[dict]) -> list[dict]:
+    sorted_students = sorted(students, key = lambda student:student["final_score"])
+    return sorted_students
+
 def calculate_statistics():
     pass
 
-#Main program
 
-file_name = "tests_student_examples"
+# Main program
+
+file_name = "students.csv"
 
 if not check_file(file_name):
     sys.exit()
-
 
 with open(file_name, "r") as file:
     """
@@ -318,46 +341,35 @@ with open(file_name, "r") as file:
     # This is a list compose of students, each student is a dictionary
     students = []
     # This is the number that how many lines are failed to be added
-    failed_to_add = 0
+    total_lines = 0
+    num_of_validate_lines = 0
+    num_of_failed_line = 0
     # this will show the lines that were not added successfuly
     error_records = []
 
-    #data = file.readline()
-    #data = file.readline().strip().split(",")
+    # data = file.readline()
+    # data = file.readline().strip().split(",")
 
     file.readline()
 
     for line in file:
 
-        #my_dict = create_dict(line.strip().split(","))
+        # my_dict = create_dict(line.strip().split(","))
         info_list = line.strip().split(",")
-        #Check if the current line has the right information to make a dictionary
-        #if it does, make it. If it is not, record the content and add it to the
-        #list and count it.
-        if check_line(info_list, students):
+        # Check if the current line has the right information to make a dictionary
+        # if it does, make it. If it is not, record the content and add it to the
+        # list and count it.
+        if check_line(info_list, students, error_records):
             current_dict = create_dict(info_list)
             students.append(current_dict)
-        else:
-            failed_to_add += 1
-
-        #print(f"whole line is: {line}")
-        #These two lines are shows the data
-
-        #print("\n", type(info_list))
-        #print(f"Infos are: {info_list}\n")
-    #print(f"first student is {student_dict}")
-
-    #check_print for results
 
     print_all_students(students)
 
+    # to print the errors
 
-    #to print the errors
+    # new version
 
-    #new version
-
-
-    print_errors_info(error_records)
+    print_import_summary(students, error_records)
 
 
 """
