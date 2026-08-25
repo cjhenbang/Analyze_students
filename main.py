@@ -303,6 +303,11 @@ def calculate_total_lines(students: list[dict], failed_lines: list[str]) -> int:
     return len(students) + len(failed_lines)
 
 def calculate_average_of_final_scores(students: list[dict]) -> float:
+    """
+
+    :param students:
+    :return:
+    """
 
     if not students:
         print("We didn't find any valid student record.")
@@ -317,9 +322,71 @@ def calculate_average_of_final_scores(students: list[dict]) -> float:
     average =  total_score / num_students
     return average
 
-def sort_dictionaries(students: list[dict]) -> list[dict]:
-    sorted_students = sorted(students, key = lambda student:student["final_score"])
+def sort_dictionaries(students: list[dict], key: str) -> list[dict]:
+    """
+    This function sort dictionaries by a field of dictionaries. The key is set by user.
+        The key should be one of the eight keys of the dictionary. Like 'final_score','student_id'.
+        It doesn't change anything of the original list of dictionaries. This function will put
+        the sorted list into a new variable.
+    :param students: A list consist of many dictionaries, each one includes information of a student.
+    :return: A new list of dictionaries sorted by the user_specified key.
+            If the students parameters passed in is empty -> An empty list will be returned.
+            If the key parameters passed in does not match any of the valid keys. -> An empty list will be retuened.
+    """
+    valid_keys = ["student_id",
+                  "name",
+                  "study_hours",
+                  "attendance",
+                  "homework_score",
+                  "midterm_score",
+                  "sleep_hours",
+                  "final_score"
+                  ]
+    if not students:
+        print("There is no student in this data. Please check.")
+        return []
+
+    if not key in valid_keys:
+        print(f"The key you want to search about is {key}."
+              f"\n It is not a valid key. a valid key should be one of them: {valid_keys}")
+        return []
+
+
+    sorted_students = sorted(students, key = lambda student:student[key])
     return sorted_students
+
+def calculate_median(students: list[dict]) -> float:
+    """
+    This function will calculate the median of final scores of a group of students.
+    First it checks if the list is empty. If it does, a error message will be printed.
+
+    If the list includes at least one student, this function will calculate the median index
+        based on the amount of student in the list in odd or even. Then call the sort_dictionaries
+        to sort the students->list[student] based on their final score, from low to high. Then finally
+        calculate the median.
+    :param students: A list consist of many dictionaries, each one includes information of a student.
+    :return: The calculated median.
+    :helper function: sort_dictionaries
+    """
+    if not students:
+        print(f"There is no student in this data. Please check.")
+        return -1
+
+    sorted_students = sort_dictionaries(students, "final_score")
+    length = len(students)
+
+    median_index = length // 2
+
+    if length % 2 == 0:
+        median_1 = sorted_students[median_index]["final_score"]
+        median_2 = sorted_students[median_index - 1]["final_score"]
+        result = (median_1 + median_2) / 2
+    else:
+        result = sorted_students[median_index]["final_score"]
+
+    return result
+
+
 
 def calculate_statistics():
     pass
@@ -367,10 +434,14 @@ with open(file_name, "r") as file:
 
     # to print the errors
 
-    # new version
 
     print_import_summary(students, error_records)
 
+    #print statistics
+    for student in sort_dictionaries(students, "final_score"):
+        print(f"sorted: {student}")
+
+    print(calculate_median(students))
 
 """
     for line in file:
